@@ -1,7 +1,12 @@
 <!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <meta charset="encoding=utf-8">
+    <meta charset="utf-8">
+    <title>Language Learning Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
     <style>
         :root {
             --aqua: #26d1ba;
@@ -10,7 +15,7 @@
         }
 
         * {
-            font-size: 14pt;
+            font-size: 12pt;
             font-family: Tahoma, sans-serif;
             color: var(--primary)
         }
@@ -20,7 +25,7 @@
         }
 
         .editor {
-            margin-top: 20pt;
+            margin-top: 10pt;
         }
 
         .editor>textarea {
@@ -29,11 +34,11 @@
         }
 
         .content {
-            margin-top: 36pt;
+            margin-top: 10pt;
         }
 
         header {
-            margin-bottom: 20pt;
+            margin-bottom: 10pt;
             font-size: 20pt;
         }
 
@@ -74,7 +79,7 @@
         }
 
         hr {
-            margin: 20pt 0;
+            margin: 10pt 0;
         }
 
         .hidden {
@@ -84,32 +89,38 @@
 </head>
 
 <body>
-    <div class="controls">
-        <button onclick="hideAll()">Hide all</button>&nbsp;&nbsp;&nbsp;&nbsp;
-        <button onclick="showAll()">Show all</button>&nbsp;&nbsp;&nbsp;&nbsp;
-        <button onclick="toggleEditor()">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;
+    <div class="container">
+        <div class="row" style="margin-top: 2%;margin-bottom: 2%;">
+            <div class="column">
+                <div class="controls">
+                    <button onclick="hideAll()">Hide all</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button onclick="showAll()">Show all</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button onclick="toggleEditor()">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                </div>
+
+                <div class="editor">
+                    <textarea spellcheck="false" oninput="onEditorInput()">
+            !!Language Learning Tool
+            -
+            try to click on words and buttons
+            попробуй нажать на слова и кнопки
+            -
+            let's learn
+            давай изучать
+            -
+            your language
+            твой язык
+            ---
+            While you're+enjoying+it
+            пока тебе+это+нравится
+            
+            </textarea>
+                </div>
+                <div class="content"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="editor">
-        <textarea spellcheck="false" oninput="onEditorInput()">
-!!Language Learning Tool
--
-try to click on words and buttons
-попробуй нажать на слова и кнопки
--
-let's learn
-давай изучать
--
-your language
-твой язык
----
-While you're+enjoying+it
-пока тебе+это+нравится
-
-</textarea>
-    </div>
-    <div class="content">
-    </div>
 
     <script>
         var saved = loadText() || ""
@@ -245,3 +256,5 @@ While you're+enjoying+it
         }
     </script>
 </body>
+
+</html>

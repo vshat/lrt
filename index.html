@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="encoding=utf-8">
+    <style>
+        :root {
+            --aqua: #26d1ba;
+            --primary: #444;
+            --ol: #009682;
+        }
+
+        * {
+            font-size: 14pt;
+            font-family: Tahoma, sans-serif;
+            color: var(--primary)
+        }
+
+        body {
+            /* background: #eee */
+        }
+
+        .editor {
+            margin-top: 20pt;
+        }
+
+        .editor>textarea {
+            width: 900px;
+            height: 200px;
+        }
+
+        .content {
+            margin-top: 36pt;
+        }
+
+        header {
+            margin-bottom: 20pt;
+            font-size: 20pt;
+        }
+
+        .dword:hover {
+            background-color: lightgray;
+            border-radius: 4pt;
+        }
+
+        .line {
+            margin-top: 8pt;
+        }
+
+        .dword {
+            display: inline-block;
+            margin: 0 4pt;
+            padding: 3pt;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .puzzled {
+            background: var(--aqua);
+            color: var(--aqua) !important;
+        }
+
+        .dword>div {
+            width: 100%;
+            text-align: center;
+            padding-top: 2pt;
+            border-radius: 4pt;
+        }
+
+        .dword>div:nth-child(2) {
+            color: var(--ol);
+            font-style: italic;
+            font-weight: bold;
+            padding: 0 1pt;
+        }
+
+        hr {
+            margin: 20pt 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="controls">
+        <button onclick="hideAll()">Hide all</button>&nbsp;&nbsp;&nbsp;&nbsp;
+        <button onclick="showAll()">Show all</button>&nbsp;&nbsp;&nbsp;&nbsp;
+        <button onclick="toggleEditor()">Edit</button>&nbsp;&nbsp;&nbsp;&nbsp;
+    </div>
+
+    <div class="editor">
+        <textarea spellcheck="false" oninput="onEditorInput()">
+!!Language Learning Tool
+-
+try to click on words and buttons
+попробуй нажать на слова и кнопки
+-
+let's learn
+давай изучать
+-
+your language
+твой язык
+---
+While you're+enjoying+it
+пока тебе+это+нравится
+
+</textarea>
+    </div>
+    <div class="content">
+    </div>
+
+    <script>
+        var saved = loadText() || ""
+        if (saved.length) {
+            document.querySelector(".editor>textarea").value = saved
+        }
+        onEditorInput()
+
+        function setupContent() {
+            document.querySelectorAll(".dword").forEach(dw => {
+                const t = dw.children[0];
+                const o = dw.children[1];
+
+                o.onclick = () => {
+                    o.classList.toggle("puzzled")
+                }
+                t.onclick = () => o.click()
+            })
+        }
+
+        function hideAll() {
+            document.querySelectorAll(".dword").forEach(dw => {
+                dw.children[1].classList.add("puzzled")
+            })
+        }
+
+        function showAll() {
+            document.querySelectorAll(".dword").forEach(dw => {
+                dw.children[1].classList.remove("puzzled")
+            })
+        }
+
+        function toggleEditor() {
+            document.querySelector(".editor").classList.toggle("hidden")
+        }
+        function demo() {
+            document.querySelector(".editor>textarea").value = "!!Language Learning Tool\n-\nlet's learn\nдавай изучать\n-\nyour language\nтвой язык\n---\nWhile you're+enjoying+it\nпока тебе+это+нравится"
+            onEditorInput()
+        }
+
+        function onEditorInput() {
+            const text = document.querySelector(".editor>textarea").value
+            console.log("editor text:")
+            console.log(text)
+
+            const parsed = parseText(text)
+            console.log("parsed:")
+            console.log(parsed)
+
+            updateContent(parsed)
+            setupContent()
+            saveText(text)
+        }
+
+        function updateContent(data) {
+            let html = "";
+            if (data.title.length) {
+                html += "<header>" + data.title + "</header>\n"
+            }
+            data.lines.forEach(l => {
+                if (l.hr) {
+                    html += '<hr>\n'
+                } else if (l.words) {
+                    html += '<div class="line">\n'
+                    l.words.forEach(w => {
+                        html += '<div class="dword">\n'
+                        html += '<div>' + w.left + '</div>\n'
+                        html += '<div>' + w.right + '</div>\n'
+                        html += '</div>\n'
+                    })
+                    html += '</div>\n'
+                }
+            })
+            document.querySelector("div.content").innerHTML = html;
+        }
+
+        function loadText() {
+            return localStorage.getItem("text")
+        }
+
+        function saveText(text) {
+            localStorage.setItem("text", text)
+        }
+
+        function parseText(text) {
+            const res = {
+                title: "",
+                lines: []
+            }
+            const lines = text.trim().replaceAll("\r", "\n").replace(/\n+/g, "\n").split("\n")
+            let line = [];
+            lines
+                .map(l => l.trim())
+                .filter(l => l.length)
+                .forEach(l => {
+                    if (l.indexOf("!!") === 0 && !res.title.length) {
+                        res.title = l.substring(2)
+                    } else if (l[0] == "-") {
+                        res.lines.push({ tl: line[0], ol: line[1] })
+                        if (l[1] === "-") {
+                            res.lines.push({ hr: true })
+                        }
+                        line = []
+                    } else if (line.length == 0 || line.length == 1) {
+                        line.push(l)
+                    } else {
+                        console.warn("parse: unknown line: " + l)
+                    }
+                })
+            if (line.length) {
+                res.lines.push({ tl: line[0], ol: line[1] })
+            }
+
+            res.lines.forEach(l => {
+                if (l.tl && l.ol) {
+                    l.words = parseWords(l.tl, l.ol)
+                }
+            })
+
+            return res;
+        }
+
+        function parseWords(left, right) {
+            const leftWords = left.split(" ").map(w => w.replaceAll("+", " "))
+            const rightWords = right.split(" ").map(w => w.replaceAll("+", " "))
+            const res = []
+
+            for (let i = 0; i < leftWords.length && i < rightWords.length; i++) {
+                res.push({ left: leftWords[i], right: rightWords[i] })
+            }
+
+            return res
+        }
+    </script>
+</body>

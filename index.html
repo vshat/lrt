@@ -22,7 +22,7 @@
 
         button {
             padding: 10px;
-            margin: 0;
+            margin: 4pt 0;
             line-height: unset;
         }
 
@@ -93,28 +93,23 @@
     <div class="container">
         <div class="row" style="margin-top: 2%;margin-bottom: 2%;">
             <div class="column">
-                <div class="controls">
-                    <button onclick="hideAll()">Hide all</button>
-                    <button onclick="showAll()">Show all</button>
-                    <button onclick="toggleEditor()">Edit</button>
+                <div class="controls row">
+                    <div class="one-third column">
+                        <button class="editor-button button-primary" onclick="toggleEditor()">Editor</button>
+                    </div>
+                    <div class="one-third column">
+                        <button onclick="hideAll()">Hide all</button>
+                        <button onclick="showAll()">Show all</button>
+                    </div>
+                    <div class="one-third column">
+                        <button onclick="help()">Help</button>
+                        <button onclick="load()">Load</button>
+                        <button onclick="clearArea()">Clear</button>
+                    </div>
                 </div>
 
                 <div class="editor">
-                    <textarea spellcheck="false" oninput="onEditorInput()">
-!!Language Learning Tool
--
-try to+click on words and buttons
-попробуй нажать на слова и кнопки
--
-let's learn
-давай изучать
--
-your language
-твой язык
----
-While you're+enjoying+it
-пока тебе+это+нравится
-            </textarea>
+                    <textarea spellcheck="false" oninput="onEditorInput()" placeholder="Paste text here"></textarea>
                 </div>
                 <div class="content"></div>
             </div>
@@ -123,11 +118,8 @@ While you're+enjoying+it
 
 
     <script>
-        var saved = loadText() || ""
-        if (saved.length) {
-            document.querySelector(".editor>textarea").value = saved
-        }
-        onEditorInput()
+        const tip = "!!Language Learning Tool\n-\ntry to+click on words and buttons\nпопробуй нажать на слова и кнопки\n-\nlet's learn\nдавай изучать\n-\nyour language\nтвой язык\n---\nWhile you're+enjoying+it\nпока тебе+это+нравится"
+        renderInput()
 
         function setupContent() {
             document.querySelectorAll(".dword").forEach(dw => {
@@ -153,15 +145,43 @@ While you're+enjoying+it
             })
         }
 
+        function help() {
+            const text = document.querySelector(".editor>textarea").value.trim();
+
+            if (!text.length || text == tip || confirm("Are you sure? Your text will be discarded")) {
+                document.querySelector(".editor>textarea").value = tip;
+                renderInput()
+            }
+        }
+
         function toggleEditor() {
             document.querySelector(".editor").classList.toggle("hidden")
+            document.querySelector(".editor-button").classList.toggle("button-primary")
         }
-        function demo() {
-            document.querySelector(".editor>textarea").value = "!!Language Learning Tool\n-\nlet's learn\nдавай изучать\n-\nyour language\nтвой язык\n---\nWhile you're+enjoying+it\nпока тебе+это+нравится"
-            onEditorInput()
+
+        function load() {
+            var saved = loadText() || ""
+            if (saved.length) {
+                document.querySelector(".editor>textarea").value = saved
+            }
+            renderInput()
+        }
+
+        function clearArea() {
+            const text = document.querySelector(".editor>textarea").value.trim();
+
+            if (!text.length || text == tip || confirm("Are you sure? Your text will be discarded")) {
+                document.querySelector(".editor>textarea").value = "";
+                renderInput()
+            }
         }
 
         function onEditorInput() {
+            const text = renderInput()
+            saveText(text)
+        }
+
+        function renderInput() {
             const text = document.querySelector(".editor>textarea").value
             console.log("editor text:")
             console.log(text)
@@ -172,7 +192,8 @@ While you're+enjoying+it
 
             updateContent(parsed)
             setupContent()
-            saveText(text)
+
+            return text;
         }
 
         function updateContent(data) {

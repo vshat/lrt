@@ -15,7 +15,7 @@
         }
 
         * {
-            font-size: 14pt;
+            font-size: 13pt;
             font-family: Tahoma, sans-serif;
             color: var(--primary)
         }
@@ -33,10 +33,25 @@
         .editor>textarea {
             width: 100%;
             height: 200px;
+            resize: none;
+            font-size: 11pt;
+        }
+
+        .editor>textarea.splitted {
+            height: 80vh;
         }
 
         .content {
             margin-top: 10pt;
+        }
+
+        .content.splitted {
+            height: 80vh;
+            overflow-y: auto;
+        }
+
+        .content.splitted .line * {
+            font-size: 11pt;
         }
 
         .dword:hover {
@@ -50,10 +65,15 @@
 
         .dword {
             display: inline-block;
-            margin: 0 4pt;
-            padding: 3pt;
+            margin: 0 2pt;
+            padding: 2pt;
             cursor: pointer;
             user-select: none;
+        }
+
+        .splitted .dword {
+            margin: 0 1pt;
+            padding: 1pt;
         }
 
         .puzzled {
@@ -76,7 +96,9 @@
         }
 
         hr {
-            margin: 10pt 0;
+            margin: 20pt 0;
+            background-color: #fff;
+            border-top: 2px dashed #8c8b8b;
         }
 
         .hidden {
@@ -86,39 +108,72 @@
         textarea {
             font-size: 14pt;
         }
+
+        h3 {
+            font-size: 20pt;
+        }
+
+        @media print {
+            .controls {
+                display: none !important;
+            }
+
+            .container {
+                width: 95%;
+            }
+
+            .line * {
+                font-size: 10pt !important;
+            }
+
+            h3 {
+                font-size: 18pt;
+            }
+
+            .dword {
+                margin: 0 1pt;
+                padding: 1pt;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="row" style="margin-top: 2%;margin-bottom: 2%;">
+        <div class="row" style="margin-top: 1%;margin-bottom: 1%;">
             <div class="column">
                 <div class="controls row">
-                    <div class="one-third column">
+                    <div class="three columns">
                         <button class="editor-button button-primary" onclick="toggleEditor()">Editor</button>
                     </div>
-                    <div class="one-third column">
+                    <div class="three columns">
                         <button onclick="hideAll()">Hide all</button>
                         <button onclick="showAll()">Show all</button>
                     </div>
-                    <div class="one-third column">
-                        <button onclick="help()">Help</button>
-                        <button onclick="load()">Load</button>
+                    <div class="three columns" style="text-align: right;">
                         <button onclick="clearArea()">Clear</button>
+                        <button onclick="load()">Load</button>
+                    </div>
+                    <div class="three columns" style="text-align: right;">
+                        <button onclick="help()">Help</button>
+                        <button onclick="doPrint()">Print</button>
                     </div>
                 </div>
 
-                <div class="editor">
-                    <textarea spellcheck="false" oninput="onEditorInput()" placeholder="Paste text here"></textarea>
+                <div class="row">
+                    <div class="one-third column editor">
+                        <textarea class="splitted" spellcheck="false" oninput="onEditorInput()"
+                            placeholder="Paste text here"></textarea>
+                    </div>
+                    <div class="two-thirds column content splitted"></div>
                 </div>
-                <div class="content"></div>
             </div>
         </div>
     </div>
 
 
     <script>
-        const tip = "!!Language Learning Tool\n-\ntry to+click on words and buttons\nпопробуй нажать на слова и кнопки\n-\nlet's learn\nдавай изучать\n-\nyour language\nтвой язык\n---\nWhile you're+enjoying+it\nпока тебе+это+нравится"
+        const tip = "!!Language Learning Tool\n\ntry to+click on words and buttons\n\nпопробуй нажать на слова и кнопки\nlet's learn\nдавай изучать\n\nyour language\nтвой язык\n-\nwhile you're+enjoying+it\nпока тебе+это+нравится"
         renderInput()
 
         function setupContent() {
@@ -146,6 +201,10 @@
         }
 
         function help() {
+            if (document.querySelector(".editor").classList.contains("hidden")) {
+                toggleEditor();
+            }
+
             const text = document.querySelector(".editor>textarea").value.trim();
 
             if (!text.length || text == tip || confirm("Are you sure? Your text will be discarded")) {
@@ -154,9 +213,20 @@
             }
         }
 
+        function doPrint() {
+            if (!document.querySelector(".editor").classList.contains("hidden")) {
+                toggleEditor();
+            }
+            showAll();
+            print();
+        }
+
         function toggleEditor() {
             document.querySelector(".editor").classList.toggle("hidden")
             document.querySelector(".editor-button").classList.toggle("button-primary")
+            document.querySelector(".editor>textarea").classList.toggle("splitted")
+            document.querySelector(".content").classList.toggle("splitted")
+            document.querySelector(".content").classList.toggle("two-thirds")
         }
 
         function load() {
@@ -168,6 +238,10 @@
         }
 
         function clearArea() {
+            if (document.querySelector(".editor").classList.contains("hidden")) {
+                toggleEditor();
+            }
+
             const text = document.querySelector(".editor>textarea").value.trim();
 
             if (!text.length || text == tip || confirm("Are you sure? Your text will be discarded")) {
@@ -239,16 +313,16 @@
                 .forEach(l => {
                     if (l.indexOf("!!") === 0 && !res.title.length) {
                         res.title = l.substring(2)
-                    } else if (l[0] == "-") {
-                        res.lines.push({ tl: line[0], ol: line[1] })
-                        if (l[1] === "-") {
-                            res.lines.push({ hr: true })
-                        }
-                        line = []
-                    } else if (line.length == 0 || line.length == 1) {
-                        line.push(l)
                     } else {
-                        console.warn("parse: unknown line: " + l)
+                        if (line.length == 2) {
+                            res.lines.push({ tl: line[0], ol: line[1] })
+                            line.length = 0
+                        }
+                        if (l[0] == "-") {
+                            res.lines.push({ hr: true })
+                        } else {
+                            line.push(l)
+                        }
                     }
                 })
             if (line.length) {
@@ -256,9 +330,7 @@
             }
 
             res.lines.forEach(l => {
-                if (l.tl && l.ol) {
-                    l.words = parseWords(l.tl, l.ol)
-                }
+                l.words = parseWords(l.tl || "", l.ol || "")
             })
 
             return res;
@@ -269,8 +341,9 @@
             const rightWords = right.split(" ").map(w => w.replaceAll("+", " "))
             const res = []
 
-            for (let i = 0; i < leftWords.length && i < rightWords.length; i++) {
-                res.push({ left: leftWords[i], right: rightWords[i] })
+            const len = Math.max(leftWords.length, rightWords.length)
+            for (let i = 0; i < len; i++) {
+                res.push({ left: leftWords[i] || "⚠️", right: rightWords[i] || "⚠️" })
             }
 
             return res

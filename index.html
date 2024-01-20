@@ -319,6 +319,10 @@
                             line.length = 0
                         }
                         if (l[0] == "-") {
+                            if (line.length == 1) {
+                                res.lines.push({ tl: line[0] })
+                                line.length = 0
+                            }
                             res.lines.push({ hr: true })
                         } else {
                             line.push(l)

@@ -150,11 +150,13 @@
                         <button onclick="hideAll()">Hide all</button>
                         <button onclick="showAll()">Show all</button>
                     </div>
-                    <div class="three columns" style="text-align: right;">
+                    <div class="four columns" style="text-align: right;">
                         <button onclick="clearArea()">Clear</button>
-                        <button onclick="load()">Load</button>
+                        <button onclick="loadTxt()">Load TXT</button>
+                        <input type="file" accept=".txt" id="uploadFile" hidden="hidden" onchange="onFileInput()">
+                        <button onclick="saveTxt()">Save TXT</button>
                     </div>
-                    <div class="three columns" style="text-align: right;">
+                    <div class="two columns" style="text-align: right;">
                         <button onclick="help()">Help</button>
                         <button onclick="doPrint()">Print</button>
                     </div>
@@ -274,6 +276,7 @@
             let html = "";
             if (data.title.length) {
                 html += "<h3>" + data.title + "</h3>\n"
+                document.title = data.title
             }
             data.lines.forEach(l => {
                 if (l.hr) {
@@ -351,6 +354,41 @@
             }
 
             return res
+        }
+
+        function onFileInput() {
+            const input = document.getElementById("uploadFile").files[0];
+            if (input) {
+                readFile(input, document.querySelector(".editor>textarea"));
+            }
+        }
+
+        function readFile(source, target) {
+            const reader = new FileReader();
+            reader.addEventListener('load', (event) => {
+                target.value = event.target.result;
+                document.getElementById("uploadFile").value = null;
+                renderInput()
+            });
+            reader.readAsText(source);
+        }
+
+        function loadTxt() {
+            document.getElementById("uploadFile").click()
+        }
+
+        function saveTxt() {
+            let data = document.querySelector(".editor>textarea").value.trim();
+            let file = document.title + '-' + Date.now() + '.txt';
+
+            let link = document.createElement('a');
+            link.download = file;
+            let blob = new Blob(['' + data + ''], {
+                type: 'text/plain'
+            });
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
         }
     </script>
 </body>

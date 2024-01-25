@@ -178,7 +178,8 @@
     <script>
         const tip = `!!Language Learning Tool\n\ntry to+click on words and buttons\n\nпопробуй нажать на слова и кнопки\nlet's learn\nдавай изучать\n\nyour language\nтвой язык\n\n(hover a+word and press "Q" for fun)\nнаведи на+слово и нажми "Q" для веселья\n-\nwhile you're+enjoying+it\nпока тебе+это+нравится\n`
         let currentWord = "";
-        renderInput()
+        let lastInput = ""
+        setInterval(renderInput, 100)
 
         window.onbeforeunload = function (e) {
             e.preventDefault();
@@ -273,11 +274,14 @@
 
         function onEditorInput() {
             const text = renderInput()
-            saveText(text)
         }
 
         function renderInput() {
             const text = document.querySelector(".editor>textarea").value
+            if (text === lastInput) {
+                return
+            }
+            lastInput = text
             console.log("editor text:")
             console.log(text)
 
@@ -312,14 +316,6 @@
                 }
             })
             document.querySelector("div.content").innerHTML = html;
-        }
-
-        function loadText() {
-            return localStorage.getItem("text")
-        }
-
-        function saveText(text) {
-            localStorage.setItem("text", text)
         }
 
         function parseText(text) {

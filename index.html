@@ -175,18 +175,31 @@
 
 
     <script>
-        const tip = "!!Language Learning Tool\n\ntry to+click on words and buttons\n\nпопробуй нажать на слова и кнопки\nlet's learn\nдавай изучать\n\nyour language\nтвой язык\n-\nwhile you're+enjoying+it\nпока тебе+это+нравится"
+        const tip = `!!Language Learning Tool\n\ntry to+click on words and buttons\n\nпопробуй нажать на слова и кнопки\nlet's learn\nдавай изучать\n\nyour language\nтвой язык\n\n(hover a+word and press "Q" for fun)\nнаведи на+слово и нажми "Q" для веселья\n-\nwhile you're+enjoying+it\nпока тебе+это+нравится\n`
+        let currentWord = "";
         renderInput()
+
+        document.body.addEventListener('keydown', (e) => {
+            if (e.code == 'KeyQ' && currentWord.length) {
+                e.preventDefault()
+                window.open("https://wooordhunt.ru/word/" + currentWord)
+            }
+        })
 
         function setupContent() {
             document.querySelectorAll(".dword").forEach(dw => {
                 const t = dw.children[0];
                 const o = dw.children[1];
 
-                o.onclick = () => {
+                dw.onclick = () => {
                     o.classList.toggle("puzzled")
                 }
-                t.onclick = () => o.click()
+                dw.onmouseenter = () => {
+                    currentWord = t.textContent.trim()
+                }
+                dw.onmouseleave = () => {
+                    currentWord = ""
+                }
             })
         }
 

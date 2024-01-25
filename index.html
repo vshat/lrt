@@ -330,7 +330,7 @@
             const lines = text.trim().replaceAll("\r", "\n").replace(/\n+/g, "\n").split("\n")
             let line = [];
             lines
-                .map(l => l.trim())
+                .map(l => l.trim().replace(/\s+/g, " ").replaceAll(/\s?\+\s?/g, "+"))
                 .filter(l => l.length)
                 .forEach(l => {
                     if (l.indexOf("!!") === 0 && !res.title.length) {

@@ -179,6 +179,11 @@
         let currentWord = "";
         renderInput()
 
+        window.onbeforeunload = function (e) {
+            e.preventDefault();
+            return 'Are you sure you want to leave?';
+        };
+
         document.body.addEventListener('keydown', (e) => {
             if (e.code == 'KeyQ' && currentWord.length) {
                 e.preventDefault()

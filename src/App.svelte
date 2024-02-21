@@ -146,15 +146,11 @@
   }
 
   function getId(pair: WordsPair): number {
-    return pair.left?.position ?? pair.right?.position ?? -1;
+    return pair.left?.start ?? pair.right?.start ?? -1;
   }
 
   function selectText(text: PositionedText) {
-    selectTextInTextArea(
-      editor,
-      text.position,
-      text.position + text.value.length,
-    );
+    selectTextInTextArea(editor, text.start, text.end);
   }
 
   function selectTextInTextArea(

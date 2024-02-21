@@ -18,7 +18,8 @@ export interface WordsPair {
 
 export interface PositionedText {
     value: string;
-    position: number;
+    start: number;
+    end: number;
 }
 
 export function parseText(text: string): Doc {
@@ -56,7 +57,7 @@ export function parseText(text: string): Doc {
                     }
                     res.lines.push({ isLineBreak: true, words: [] });
                 } else {
-                    line.push({ value: l, position: lineOffset });
+                    line.push({ value: l, start: lineOffset, end: lineOffset + l.length });
                 }
             }
         });
@@ -76,9 +77,9 @@ export function parseText(text: string): Doc {
 }
 
 function parseWords(left?: PositionedText, right?: PositionedText): WordsPair[] {
-    const leftWords = left == null ? [] : splitByWords(left)
-    const rightWords = right == null ? [] : splitByWords(right)
-    const res = [];
+    const leftWords = toWords(left)
+    const rightWords = toWords(right)
+    const res: WordsPair[] = [];
 
     const len = Math.max(leftWords.length, rightWords.length);
     for (let i = 0; i < len; i++) {
@@ -89,16 +90,52 @@ function parseWords(left?: PositionedText, right?: PositionedText): WordsPair[] 
     }
 
     return res;
-}
 
-function splitByWords(text: PositionedText): PositionedText[] {
-    let nextOffset = text.position;
-    return text.value.split(" ").map(word => {
-        let offset = nextOffset;
-        nextOffset += word.length + 1
-        return {
-            value: word,
-            position: offset
+    function toWords(text?: PositionedText): PositionedText[] {
+        if (text == null) return [];
+        return joinByPlus(splitByWords(text));
+    }
+
+    function splitByWords(text: PositionedText): PositionedText[] {
+        const regex = /[^+ ]+|\+/gm;
+        const res: PositionedText[] = []
+
+        let match;
+        while ((match = regex.exec(text.value)) !== null) {
+            // This is necessary to avoid infinite loops with zero-width matches
+            if (match.index === regex.lastIndex) {
+                regex.lastIndex++;
+            }
+            const start = text.start + match.index
+            res.push({ value: match[0], start, end: start + match[0].length })
         }
-    })
+        return res
+    }
+
+    function joinByPlus(words: PositionedText[]): PositionedText[] {
+        const res: PositionedText[] = []
+
+        for (let i = 0; i < words.length; i++) {
+            let w = words[i];
+            if (w.value == '+' && i > 0 && i < words.length - 1) {
+                const prevWord = res[res.length - 1]
+
+                let nextWord: PositionedText
+                do {
+                    nextWord = words[i + 1]
+                    i++
+                } while (nextWord.value == '+' && i < words.length - 1)
+
+                const joinedWord: PositionedText = {
+                    value: prevWord.value + ' ' + nextWord.value,
+                    start: prevWord.start,
+                    end: nextWord.end
+                }
+                res[res.length - 1] = joinedWord
+            } else {
+                res.push(w)
+            }
+        }
+        return res
+    }
 }

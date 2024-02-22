@@ -7,8 +7,9 @@
     type PositionedText,
   } from "./lib/parser";
   import { colors, type ColorScheme } from "./lib/colors";
+  import InfoIcon from "./assets/info.png";
 
-  const tip = `!!Language Learning Tool\n\ntry to+click on words and buttons\n\nпопробуй нажать на слова и кнопки\nlet's learn\nдавай изучать\n\nyour language\nтвой язык\n\n(hover a+word and press "Q" for fun)\nнаведи на+слово и нажми "Q" для веселья\n-\nwhile you're+enjoying+it\nпока тебе+это+нравится\n`;
+  const tip = `!!Language Learning Tool\n\ntry to+click on words {this is a tooltip} and buttons\n\nпопробуй нажать на слова и кнопки\nlet's learn\nдавай изучать\n\nyour language {here is another tooltip!!}\nтвой язык\n\n(hover a+word and press "Q" for fun)\nнаведи на+слово и нажми "Q" для веселья\n-\nwhile you're+enjoying+it\nпока тебе+это+нравится\n`;
   let currentWord: string | undefined | null = null;
   let editorText = "";
   let editor: HTMLTextAreaElement;
@@ -276,6 +277,17 @@
                     <div data-type="left">
                       {#if word.left}
                         {word.left.value}
+
+                        {#if word.left.tooltip}
+                          <div class="tooltip">
+                            <img
+                              alt=""
+                              src={InfoIcon}
+                              style="width: 20px; margin-left:4px"
+                            />
+                            <span class="tooltiptext">{word.left.tooltip}</span>
+                          </div>
+                        {/if}
                       {:else}
                         <span style="font-style:normal"> ⚠️ </span>
                       {/if}

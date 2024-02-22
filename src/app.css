@@ -96,6 +96,10 @@ h3 {
 }
 
 @media print {
+  .tooltip {
+    display: none;
+  }
+
   .controls {
     display: none !important;
   }

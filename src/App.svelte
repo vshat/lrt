@@ -6,13 +6,28 @@
     type WordsPair,
     type PositionedText,
   } from "./lib/parser";
+  import { colors, type ColorScheme } from "./lib/colors";
 
   const tip = `!!Language Learning Tool\n\ntry to+click on words and buttons\n\nпопробуй нажать на слова и кнопки\nlet's learn\nдавай изучать\n\nyour language\nтвой язык\n\n(hover a+word and press "Q" for fun)\nнаведи на+слово и нажми "Q" для веселья\n-\nwhile you're+enjoying+it\nпока тебе+это+нравится\n`;
   let currentWord: string | undefined | null = null;
   let editorText = "";
   let editor: HTMLTextAreaElement;
   let isEditMode = true;
+  let selectedColor: ColorScheme;
+
+  const name = localStorage.getItem("selectedColorName");
+  const userSelected = colors.find((c) => c.name == name);
+  if (userSelected) {
+    selectedColor = userSelected;
+  } else {
+    selectedColor = colors[0];
+  }
+
   let puzzledWords: { [key: number]: true } = {};
+
+  $: puzzledStyle = `background: ${selectedColor.background}; color: ${selectedColor.background}`;
+  $: nonPuzzledStyle = `color: ${selectedColor.foreground}`;
+  $: localStorage.setItem("selectedColorName", selectedColor.name);
 
   window.onload = () => {
     // useful if browser restores state
@@ -190,7 +205,7 @@
   <div class="row" style="margin-top: 1%;margin-bottom: 1%;">
     <div class="column">
       <div class="controls row">
-        <div class="three columns">
+        <div class="two columns">
           <button
             class="editor-button {isEditMode ? 'button-primary' : ''}"
             on:click={toggleEditor}>Editor</button
@@ -212,9 +227,21 @@
           />
           <button on:click={saveTxt}>Save TXT</button>
         </div>
-        <div class="two columns" style="text-align: right;">
+        <div class="three columns" style="text-align: right;">
           <button on:click={help}>Help</button>
           <button on:click={doPrint}>Print</button>
+          <span
+            ><select
+              style="width: 50px; appearance:none; border: 2px solid {selectedColor.foreground}"
+              bind:value={selectedColor}
+            >
+              {#each colors as colors}
+                <option value={colors}>
+                  {colors.name}
+                </option>
+              {/each}
+            </select></span
+          >
         </div>
       </div>
 
@@ -255,7 +282,9 @@
                     </div>
                     <div
                       data-type="right"
-                      class={puzzledWords[getId(word)] ? "puzzled" : ""}
+                      style={puzzledWords[getId(word)]
+                        ? puzzledStyle
+                        : nonPuzzledStyle}
                     >
                       {#if word.right}
                         {word.right.value}

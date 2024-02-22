@@ -11,37 +11,37 @@ export const colors: ColorScheme[] = [
     },
     {
         name: "Red",
-        foreground: "#E53935",
+        foreground: "#D32F2F",
         background: "#FF8A80",
     },
     {
         name: "Pink",
-        foreground: "#D81B60",
+        foreground: "#C2185B",
         background: "#FF80AB",
     },
     {
         name: "Purple",
-        foreground: "#8E24AA",
+        foreground: "#7B1FA2",
         background: "#EA80FC",
     },
     {
         name: "Deep Purple",
-        foreground: "#5E35B1",
+        foreground: "#512DA8",
         background: "#B388FF",
     },
     {
         name: "Indigo",
-        foreground: "#3949AB",
+        foreground: "#303F9F",
         background: "#8C9EFF",
     },
     {
         name: "Blue",
-        foreground: "#1E88E5",
+        foreground: "#1976D2",
         background: "#82B1FF",
     },
     {
         name: "Light Blue",
-        foreground: "#039BE5",
+        foreground: "#0288D1",
         background: "#80D8FF",
     },
 
@@ -53,18 +53,18 @@ export const colors: ColorScheme[] = [
 
     {
         name: "Teal",
-        foreground: "#00897B",
+        foreground: "#00796B",
         background: "#A7FFEB",
     },
 
     {
         name: "Green",
-        foreground: "#43A047",
+        foreground: "#388E3C",
         background: "#B9F6CA",
     },
     {
         name: "Light Green",
-        foreground: "#7CB342",
+        foreground: "#689F38",
         background: "#CCFF90",
     },
     {
@@ -74,22 +74,22 @@ export const colors: ColorScheme[] = [
     },
     {
         name: "Yellow",
-        foreground: "#FFCA28",
+        foreground: "#FBC02D",
         background: "#FFFF8D",
     },
     {
         name: "Amber",
-        foreground: "#FFB300",
+        foreground: "#FFA000",
         background: "#FFE57F",
     },
     {
         name: "Orange",
-        foreground: "#FB8C00",
+        foreground: "#F57C00",
         background: "#FFD180",
     },
     {
         name: "Deep Orange",
-        foreground: "#F4511E",
+        foreground: "#E64A19",
         background: "#FF9E80",
     },
 ];

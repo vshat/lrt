@@ -22,7 +22,7 @@ export const colors: ColorScheme[] = [
     {
         name: "Purple",
         foreground: "#7B1FA2",
-        background: "#EA80FC",
+        background: "hsl(292 60% 75% / 1)",
     },
     {
         name: "Deep Purple",
@@ -42,13 +42,13 @@ export const colors: ColorScheme[] = [
     {
         name: "Light Blue",
         foreground: "#0288D1",
-        background: "#80D8FF",
+        background: "#1f7fb2",
     },
 
     {
         name: "Cyan",
         foreground: "#0097A7",
-        background: "#84FFFF",
+        background: "#a3e0e0",
     },
 
     {

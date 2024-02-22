@@ -12,84 +12,84 @@ export const colors: ColorScheme[] = [
     {
         name: "Red",
         foreground: "#E53935",
-        background: "#FF5252",
+        background: "#FF8A80",
     },
     {
         name: "Pink",
         foreground: "#D81B60",
-        background: "#FF4081",
+        background: "#FF80AB",
     },
     {
         name: "Purple",
         foreground: "#8E24AA",
-        background: "#E040FB",
+        background: "#EA80FC",
     },
     {
         name: "Deep Purple",
         foreground: "#5E35B1",
-        background: "#7C4DFF",
+        background: "#B388FF",
     },
     {
         name: "Indigo",
         foreground: "#3949AB",
-        background: "#536DFE",
+        background: "#8C9EFF",
     },
     {
         name: "Blue",
         foreground: "#1E88E5",
-        background: "#448AFF",
+        background: "#82B1FF",
     },
     {
         name: "Light Blue",
         foreground: "#039BE5",
-        background: "#40C4FF",
+        background: "#80D8FF",
     },
 
     {
         name: "Cyan",
         foreground: "#0097A7",
-        background: "#00E5FF",
+        background: "#84FFFF",
     },
 
     {
         name: "Teal",
         foreground: "#00897B",
-        background: "#64FFDA",
+        background: "#A7FFEB",
     },
 
     {
         name: "Green",
         foreground: "#43A047",
-        background: "#69F0AE",
+        background: "#B9F6CA",
     },
     {
         name: "Light Green",
         foreground: "#7CB342",
-        background: "#B2FF59",
+        background: "#CCFF90",
     },
     {
         name: "Lime",
         foreground: "#AFB42B",
-        background: "#C6FF00",
+        background: "#F4FF81",
     },
     {
         name: "Yellow",
         foreground: "#FFCA28",
-        background: "#FFEA00",
+        background: "#FFFF8D",
     },
     {
         name: "Amber",
         foreground: "#FFB300",
-        background: "#FFD740",
+        background: "#FFE57F",
     },
     {
         name: "Orange",
         foreground: "#FB8C00",
-        background: "#FFAB40",
+        background: "#FFD180",
     },
     {
         name: "Deep Orange",
         foreground: "#F4511E",
-        background: "#FF6E40",
+        background: "#FF9E80",
     },
 ];

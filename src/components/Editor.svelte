@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { IS_DEV, selectTextInTextArea } from "../lib/utils";
+    import { selectTextInTextArea } from "../lib/utils";
     export let value: string;
     export let isEditMode: boolean;
 
@@ -21,6 +21,6 @@
         spellcheck="false"
         bind:value
         bind:this={editor}
-        placeholder={IS_DEV ? "(development mode)" : "Paste text here"}
+        placeholder="Paste text here"
     ></textarea>
 </div>

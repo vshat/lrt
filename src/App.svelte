@@ -173,8 +173,14 @@
 </script>
 
 <div class="container">
-  <div class="row" style="margin-top: 1%;margin-bottom: 1%;">
-    <div class="column">
+  {#if IS_DEV}
+    <div style="position: fixed; bottom:16px; right: 32px; color:gray">
+      (dev)
+    </div>
+  {/if}
+
+  <div class="column">
+    <div class="row" style="margin-top: 1%;margin-bottom: 1%;">
       <Controls
         {isEditMode}
         bind:selectedColor

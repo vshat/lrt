@@ -3,7 +3,6 @@
 }
 
 * {
-  font-size: 13pt;
   font-family: Tahoma, sans-serif;
   color: var(--primary)
 }
@@ -36,6 +35,10 @@ button {
 .content.splitted {
   height: 80vh;
   overflow-y: auto;
+}
+
+.content .line * {
+  font-size: 13pt;
 }
 
 .content.splitted .line * {
@@ -120,4 +123,13 @@ h3 {
     margin: 0 1pt;
     padding: 1pt;
   }
+}
+
+.tippy-box[data-theme~=light-border-xl] {
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 8, 16, .15);
+  color: #333;
+  box-shadow: 0 4px 14px -2px rgba(0, 8, 16, .08);
+  font-size: 13pt;
 }

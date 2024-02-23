@@ -1,3 +1,5 @@
+export const IS_DEV = import.meta.env.MODE === 'development'
+
 export function selectTextInTextArea(
     textArea: HTMLTextAreaElement,
     selectionStart: number,

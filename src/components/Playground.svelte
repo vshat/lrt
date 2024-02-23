@@ -45,9 +45,14 @@
                     >
                         <div data-type="left">
                             {#if word.left}
-                                {word.left.value}
+                                <span style="vertical-align: middle;"
+                                    >{word.left.value}</span
+                                >
                                 {#if word.left.tooltip}
-                                    <Tooltip text={word.left.tooltip} />
+                                    <Tooltip
+                                        text={word.left.tooltip}
+                                        {isEditMode}
+                                    />
                                 {/if}
                             {:else}
                                 <span style="font-style:normal"> ⚠️ </span>

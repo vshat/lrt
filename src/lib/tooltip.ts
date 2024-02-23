@@ -2,12 +2,12 @@ import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/themes/light-border.css';
 
-export function tooltip(node: any, content: string) {
-    const tooltip: any = tippy(node, makeOptions(content));
+export function tooltip(node: any, text: string) {
+    const tooltip: any = tippy(node, makeOptions(text));
 
     return {
-        update(content: string) {
-            tooltip.setProps(makeOptions(content));
+        update(text: string) {
+            tooltip.setProps(makeOptions(text));
         },
         destroy() {
             tooltip.destroy();
@@ -15,9 +15,10 @@ export function tooltip(node: any, content: string) {
     };
 }
 
-function makeOptions(content: string) {
+function makeOptions(text: string) {
     return {
-        content,
+        content: text,
         theme: 'light-border',
+        allowHTML: true,
     };
 }

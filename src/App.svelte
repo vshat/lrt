@@ -10,8 +10,9 @@
   import Playground from "./components/Playground.svelte";
   import Editor from "./components/Editor.svelte";
   import Controls from "./components/Controls.svelte";
+  import { appHelpText } from "./lib/data";
+  import { IS_DEV } from "./lib/utils";
 
-  const tip = `!!Language Learning Tool\n\ntry to+click on words {this is a tooltip} and buttons\n\nпопробуй нажать на слова и кнопки\nlet's learn\nдавай изучать\n\nyour language {here is another tooltip!!}\nтвой язык\n\n(hover a+word and press "Q" for fun)\nнаведи на+слово и нажми "Q" для веселья\n-\nwhile you're+enjoying+it\nпока тебе+это+нравится\n`;
   let editorText = "";
   let isEditMode = true;
   let selectedColor: ColorScheme;
@@ -49,6 +50,12 @@
     }
   };
 
+  if (import.meta.env.MODE === "development") {
+    console.log("We are in development mode!");
+  } else if (import.meta.env.MODE === "production") {
+    console.log("We are in production mode!");
+  }
+
   function setAllPuzzled(isPuzzled: boolean) {
     if (isPuzzled) {
       const allWords: any = {};
@@ -69,7 +76,7 @@
       !editorText.length ||
       confirm("Are you sure? Your text will be discarded")
     ) {
-      editorText = tip;
+      editorText = appHelpText;
     }
   }
 

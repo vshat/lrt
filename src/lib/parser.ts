@@ -36,13 +36,14 @@ export function parseText(text: string): Doc {
         .forEach((l) => {
             let lineOffset = nextLineOffset
             nextLineOffset += l.length + 1
+            const trimmed = l.trim();
 
-            if (l.trim().length == 0) {
+            if (trimmed.length == 0) {
                 return
             }
 
-            if (l.indexOf("!!") === 0 && !res.title.length) {
-                res.title = l.substring(2);
+            if (trimmed.indexOf("!!") === 0 && !res.title.length) {
+                res.title = trimmed.substring(2);
             } else {
                 if (line.length == 2) {
                     res.lines.push({
@@ -52,7 +53,7 @@ export function parseText(text: string): Doc {
                     });
                     line.length = 0;
                 }
-                if (l[0] == "-") {
+                if (trimmed[0] == "-") {
                     if (line.length == 1) {
                         res.lines.push({ targetLanguage: line[0], words: [] });
                         line.length = 0;

@@ -7,14 +7,16 @@
     type PositionedText,
   } from "./lib/parser";
   import { colors, type ColorScheme } from "./lib/colors";
-  import InfoIcon from "./assets/info.png";
+  import Playground from "./components/Playground.svelte";
+  import Editor from "./components/Editor.svelte";
+  import Controls from "./components/Controls.svelte";
 
   const tip = `!!Language Learning Tool\n\ntry to+click on words {this is a tooltip} and buttons\n\nпопробуй нажать на слова и кнопки\nlet's learn\nдавай изучать\n\nyour language {here is another tooltip!!}\nтвой язык\n\n(hover a+word and press "Q" for fun)\nнаведи на+слово и нажми "Q" для веселья\n-\nwhile you're+enjoying+it\nпока тебе+это+нравится\n`;
-  let currentWord: string | undefined | null = null;
   let editorText = "";
-  let editor: HTMLTextAreaElement;
   let isEditMode = true;
   let selectedColor: ColorScheme;
+
+  let puzzledWords: { [key: number]: true } = {};
 
   const name = localStorage.getItem("selectedColorName");
   const userSelected = colors.find((c) => c.name == name);
@@ -23,17 +25,9 @@
   } else {
     selectedColor = colors[0];
   }
-
-  let puzzledWords: { [key: number]: true } = {};
-
-  $: puzzledStyle = `background: ${selectedColor.background}; color: ${selectedColor.background}`;
-  $: nonPuzzledStyle = `color: ${selectedColor.foreground}`;
   $: localStorage.setItem("selectedColorName", selectedColor.name);
 
-  window.onload = () => {
-    // useful if browser restores state
-    editorText = editor.value;
-  };
+  let editor: Editor;
 
   let doc: Doc = {
     title: "",
@@ -55,18 +49,11 @@
     }
   };
 
-  document.body.addEventListener("keydown", (e) => {
-    if (e.code == "KeyQ" && currentWord?.length) {
-      e.preventDefault();
-      window.open("https://wooordhunt.ru/word/" + currentWord);
-    }
-  });
-
   function setAllPuzzled(isPuzzled: boolean) {
     if (isPuzzled) {
       const allWords: any = {};
       doc.lines
-        .flatMap((l) => l.words.map(getId))
+        .flatMap((l) => l.words.map((w) => w.id))
         .forEach((id) => {
           allWords[id] = true;
         });
@@ -104,24 +91,24 @@
     }
   }
 
-  function onFileInput() {
-    const input = (document.getElementById("uploadFile") as any).files[0];
-    if (input) {
-      readFile(input, document.querySelector(".editor>textarea"));
+  function onFileInput(e: CustomEvent<{ fileInput: HTMLInputElement }>) {
+    const fileInput = e.detail.fileInput;
+    const file = fileInput.files?.[0];
+    if (file) {
+      readFile(file, (text) => {
+        editorText = text;
+        fileInput.value = "";
+      });
     }
   }
 
-  function readFile(source: any, target: any) {
+  function readFile(source: Blob, onLoad: (text: string) => void) {
     const reader = new FileReader();
     reader.addEventListener("load", (event) => {
-      editorText = event.target!.result!.toString();
-      (document.getElementById("uploadFile") as any)!.value = null;
+      editorText = event.target?.result?.toString() ?? "";
+      onLoad(editorText);
     });
     reader.readAsText(source);
-  }
-
-  function loadTxt() {
-    document.getElementById("uploadFile")!.click();
   }
 
   function saveTxt() {
@@ -140,7 +127,7 @@
   function onWordsPairClick(e: MouseEvent, pair: WordsPair) {
     if (isEditMode) {
       if (pair.right && pair.left) {
-        if (detectClickedPart(e, e.currentTarget) == DivPart.lower) {
+        if (detectClickedPart(e, e.currentTarget) == "lower") {
           selectText(pair.right);
         } else {
           selectText(pair.left);
@@ -151,7 +138,7 @@
         selectText(pair.left);
       }
     } else {
-      const id = getId(pair);
+      const id = pair.id;
       if (puzzledWords[id]) {
         delete puzzledWords[id];
       } else {
@@ -161,43 +148,19 @@
     }
   }
 
-  function getId(pair: WordsPair): number {
-    return pair.left?.start ?? pair.right?.start ?? -1;
-  }
-
   function selectText(text: PositionedText) {
-    selectTextInTextArea(editor, text.start, text.end);
+    editor.setSelection(text.start, text.end);
   }
 
-  function selectTextInTextArea(
-    textArea: HTMLTextAreaElement,
-    selectionStart: number,
-    selectionEnd: number,
-  ) {
-    textArea.focus();
-
-    const fullText = textArea.value;
-    textArea.value = fullText.substring(0, selectionEnd);
-    textArea.scrollTop = textArea.scrollHeight;
-    textArea.value = fullText;
-
-    textArea.setSelectionRange(selectionStart, selectionEnd);
-  }
-
-  enum DivPart {
-    upper,
-    lower,
-  }
-
-  function detectClickedPart(event: any, target: any): DivPart {
+  function detectClickedPart(event: any, target: any): "upper" | "lower" {
     var rect = target.getBoundingClientRect();
     var y = event.clientY - rect.top;
     var divHeight = rect.bottom - rect.top;
 
     if (y < divHeight / 2) {
-      return DivPart.upper;
+      return "upper";
     } else {
-      return DivPart.lower;
+      return "lower";
     }
   }
 </script>
@@ -205,115 +168,29 @@
 <div class="container">
   <div class="row" style="margin-top: 1%;margin-bottom: 1%;">
     <div class="column">
-      <div class="controls row">
-        <div class="two columns">
-          <button
-            class="editor-button {isEditMode ? 'button-primary' : ''}"
-            on:click={toggleEditor}>Editor</button
-          >
-        </div>
-        <div class="three columns">
-          <button on:click={() => setAllPuzzled(true)}>Hide all</button>
-          <button on:click={() => setAllPuzzled(false)}>Show all</button>
-        </div>
-        <div class="four columns" style="text-align: right;">
-          <button on:click={clearArea}>Clear</button>
-          <button on:click={loadTxt}>Load TXT</button>
-          <input
-            type="file"
-            accept=".txt"
-            id="uploadFile"
-            hidden={true}
-            on:change={onFileInput}
-          />
-          <button on:click={saveTxt}>Save TXT</button>
-        </div>
-        <div class="three columns" style="text-align: right;">
-          <button on:click={help}>Help</button>
-          <button on:click={doPrint}>Print</button>
-          <span
-            ><select
-              style="width: 50px; appearance:none; border: 2px solid {selectedColor.foreground}"
-              bind:value={selectedColor}
-            >
-              {#each colors as colors}
-                <option value={colors}>
-                  {colors.name}
-                </option>
-              {/each}
-            </select></span
-          >
-        </div>
-      </div>
+      <Controls
+        {isEditMode}
+        bind:selectedColor
+        on:clearArea={clearArea}
+        on:help={help}
+        on:hideAll={() => setAllPuzzled(true)}
+        on:showAll={() => setAllPuzzled(false)}
+        on:print={doPrint}
+        on:fileInput={onFileInput}
+        on:saveTxt={saveTxt}
+        on:toggleEditMode={toggleEditor}
+      />
 
       <div class="row">
-        <div class="one-third column editor {isEditMode ? '' : 'hidden'}">
-          <textarea
-            class={isEditMode ? "splitted" : ""}
-            spellcheck="false"
-            bind:value={editorText}
-            bind:this={editor}
-            placeholder="Paste text here"
-          ></textarea>
-        </div>
-        <div class="column content {isEditMode ? 'splitted two-thirds' : ''}">
-          {#if doc.title.length}
-            <h3>{doc.title}</h3>
-          {/if}
-          {#each doc.lines as line}
-            <div class="line">
-              {#if line.isLineBreak}
-                <hr />
-              {:else}
-                {#each line.words as word (getId(word))}
-                  <!-- svelte-ignore a11y-click-events-have-key-events -->
-                  <!-- svelte-ignore a11y-no-static-element-interactions -->
-                  <div
-                    class="dword"
-                    on:mouseenter={() => (currentWord = word.left?.value)}
-                    on:mouseleave={() => (currentWord = undefined)}
-                    on:click={(e) => onWordsPairClick(e, word)}
-                  >
-                    <div data-type="left">
-                      {#if word.left}
-                        {word.left.value}
-
-                        {#if word.left.tooltip}
-                          <div class="tooltip">
-                            <img
-                              alt=""
-                              src={InfoIcon}
-                              style="width: 20px; margin-left:4px"
-                            />
-                            <span class="tooltiptext">{word.left.tooltip}</span>
-                          </div>
-                        {/if}
-                      {:else}
-                        <span style="font-style:normal"> ⚠️ </span>
-                      {/if}
-                    </div>
-                    <div
-                      data-type="right"
-                      style={puzzledWords[getId(word)]
-                        ? puzzledStyle
-                        : nonPuzzledStyle}
-                    >
-                      {#if word.right}
-                        {word.right.value}
-                      {:else}
-                        <span style="font-style:normal"> ⚠️ </span>
-                      {/if}
-                    </div>
-                  </div>
-                {/each}
-              {/if}
-            </div>
-          {/each}
-        </div>
+        <Editor bind:this={editor} bind:value={editorText} {isEditMode} />
+        <Playground
+          {puzzledWords}
+          {isEditMode}
+          {selectedColor}
+          {doc}
+          on:wordsPairClick={(e) => onWordsPairClick(e.detail.e, e.detail.word)}
+        />
       </div>
     </div>
   </div>
 </div>
-
-<style>
-</style>

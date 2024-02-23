@@ -11,6 +11,7 @@ export interface Line {
 }
 
 export interface WordsPair {
+    id: number;
     left?: PositionedText;
     right?: PositionedText;
     puzzled?: boolean;
@@ -84,13 +85,16 @@ function parseWords(left?: PositionedText, right?: PositionedText): WordsPair[] 
 
     const len = Math.max(leftWords.length, rightWords.length);
     for (let i = 0; i < len; i++) {
-        res.push({
-            left: leftWords[i],
-            right: rightWords[i],
-        });
+        const left = leftWords[i];
+        const right = rightWords[i];
+        const id = makeId(left, right)
+        res.push({ id, left, right });
     }
 
     return res;
+}
+function makeId(left?: PositionedText, right?: PositionedText): number {
+    return left?.start ?? right?.start ?? -1;
 }
 
 function toWords(text?: PositionedText): PositionedText[] {
@@ -115,7 +119,6 @@ function applyTooltips(words: PositionedText[]): PositionedText[] {
 
     return res
 }
-
 
 function splitByWords(text: PositionedText): PositionedText[] {
     const regex = /[^+{} ]+|\+|{.+?}/gm;

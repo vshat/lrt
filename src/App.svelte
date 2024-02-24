@@ -39,7 +39,7 @@
 
   let wordsDictReady = false;
 
-  let debounceInputTimer: number;
+  let debounceInputTimer: any;
 
   $: {
     editorText; // when changed

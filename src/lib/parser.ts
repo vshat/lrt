@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 export interface Doc {
     title: string;
     lines: Line[];
@@ -139,12 +141,10 @@ export const RU_DICT_CHUNKS = ["абвгдеёжзийклм", "ноп", "рст
 
 function isRuWord(word: string): boolean {
     const w = word.toLowerCase()
-    if (RU_DICT_CHUNKS[0].includes(w[0])) {
-        return RU_WORDS_0[w] === 1
-    } else if (RU_DICT_CHUNKS[1].includes(w[0])) {
-        return RU_WORDS_1[w] === 1
-    } else if (RU_DICT_CHUNKS[2].includes(w[0])) {
-        return RU_WORDS_2[w] === 1
+    for (let i = 0; i < RU_WORDS.length; i++) {
+        if (RU_DICT_CHUNKS[i].includes(w[0])) {
+            return _.sortedIndexOf(RU_WORDS[i], w) !== -1
+        }
     }
     return false
 }

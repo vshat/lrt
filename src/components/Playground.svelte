@@ -43,7 +43,6 @@
         };
 
         getNonDictRuWords(positioned).forEach((w) => {
-            console.log("nondict", w);
             arr.splice(
                 w.start + offset++,
                 0,

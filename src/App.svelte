@@ -77,7 +77,7 @@
   function renderText() {
     doc = parseText(editorText);
     document.title = doc.title;
-    console.log(doc);
+    // console.log(doc);
   }
 
   function setAllPuzzled(isPuzzled: boolean) {

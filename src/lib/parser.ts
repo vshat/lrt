@@ -123,6 +123,33 @@ function applyTooltips(words: PositionedText[]): PositionedText[] {
 
 function splitByWords(text: PositionedText): PositionedText[] {
     const regex = /[^+{} ]+|\+|{.+?}/gm;
+    return splitByRegex(text, regex)
+}
+
+function splitByWordsRu(text: PositionedText): PositionedText[] {
+    const regex = /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяЯ]+/g;
+    return splitByRegex(text, regex)
+}
+
+export function getNonDictRuWords(text: PositionedText): PositionedText[] {
+    return splitByWordsRu(text)
+        .filter(w => !isRuWord(w.value))
+}
+export const RU_DICT_CHUNKS = ["абвгдеёжзийклм", "ноп", "рстуфхцчшщъыьэюя"];
+
+function isRuWord(word: string): boolean {
+    const w = word.toLowerCase()
+    if (RU_DICT_CHUNKS[0].includes(w[0])) {
+        return RU_WORDS_0[w] === 1
+    } else if (RU_DICT_CHUNKS[1].includes(w[0])) {
+        return RU_WORDS_1[w] === 1
+    } else if (RU_DICT_CHUNKS[2].includes(w[0])) {
+        return RU_WORDS_2[w] === 1
+    }
+    return false
+}
+
+function splitByRegex(text: PositionedText, regex: RegExp): PositionedText[] {
     const res: PositionedText[] = []
 
     let match;

@@ -5,6 +5,7 @@
     type Doc,
     type WordsPair,
     type PositionedText,
+    RU_DICT_CHUNKS,
   } from "./lib/parser";
   import { colors, type ColorScheme } from "./lib/colors";
   import Playground from "./components/Playground.svelte";
@@ -26,6 +27,7 @@
   } else {
     selectedColor = colors[0];
   }
+
   $: localStorage.setItem("selectedColorName", selectedColor.name);
 
   let editor: Editor;
@@ -34,26 +36,48 @@
     title: "",
     lines: [],
   };
-  $: {
-    doc = parseText(editorText);
-    document.title = doc.title;
-  }
+
+  let wordsDictReady = false;
+
+  let debounceInputTimer: number;
 
   $: {
     editorText; // when changed
     puzzledWords = {};
+    renderText();
   }
 
-  window.onbeforeunload = function (e) {
-    if (editorText.trim() != "") {
-      e.preventDefault();
-    }
-  };
+  $: {
+    selectedColor; // when changed
+    isEditMode; // when changed
+    renderText();
+  }
 
-  if (import.meta.env.MODE === "development") {
-    console.log("We are in development mode!");
-  } else if (import.meta.env.MODE === "production") {
-    console.log("We are in production mode!");
+  $: wordsDictReady && renderText();
+  $: chunksLoaded == RU_DICT_CHUNKS.length && (wordsDictReady = true);
+
+  $: if (!IS_DEV) {
+    window.onbeforeunload = function (e) {
+      if (editorText.trim() != "") {
+        e.preventDefault();
+      }
+    };
+  }
+
+  let chunksLoaded = 0;
+  for (let i = 0; i < RU_DICT_CHUNKS.length; i++) {
+    const script = document.createElement("script");
+    script.src = "./ru_words_" + i + ".js";
+    script.onload = () => {
+      chunksLoaded++;
+    };
+    document.head.appendChild(script);
+  }
+
+  function renderText() {
+    doc = parseText(editorText);
+    document.title = doc.title;
+    console.log(doc);
   }
 
   function setAllPuzzled(isPuzzled: boolean) {
@@ -74,6 +98,7 @@
     isEditMode = true;
     if (
       !editorText.length ||
+      IS_DEV ||
       confirm("Are you sure? Your text will be discarded")
     ) {
       editorText = appHelpText;
@@ -92,7 +117,7 @@
   }
 
   function clearArea() {
-    if (confirm("Are you sure? Your text will be discarded")) {
+    if (IS_DEV || confirm("Are you sure? Your text will be discarded")) {
       isEditMode = true;
       editorText = "";
     }
@@ -101,12 +126,18 @@
   function onFileInput(e: CustomEvent<{ fileInput: HTMLInputElement }>) {
     const fileInput = e.detail.fileInput;
     const file = fileInput.files?.[0];
-    if (file) {
-      readFile(file, (text) => {
-        editorText = text;
-        fileInput.value = "";
-      });
+    if (!file) return;
+
+    if (file.size > 1024 * 1024 * 2) {
+      editorText = "!!File is too big. Max size is 2MB";
+      fileInput.value = "";
+      return;
     }
+
+    readFile(file, (text) => {
+      editorText = text;
+      fileInput.value = "";
+    });
   }
 
   function readFile(source: Blob, onLoad: (text: string) => void) {
@@ -170,12 +201,21 @@
       return "lower";
     }
   }
+
+  function debounceInput(text: string) {
+    clearTimeout(debounceInputTimer);
+    debounceInputTimer = setTimeout(() => {
+      editorText = text;
+    }, 250);
+  }
 </script>
 
 <div class="container">
   {#if IS_DEV}
     <div style="position: fixed; bottom:16px; right: 32px; color:gray">
-      (dev)
+      (dev): {wordsDictReady
+        ? "dict ready"
+        : `dict chunks loaded: ${chunksLoaded} / ${RU_DICT_CHUNKS.length}`}
     </div>
   {/if}
 
@@ -195,12 +235,19 @@
       />
 
       <div class="row">
-        <Editor bind:this={editor} bind:value={editorText} {isEditMode} />
+        <Editor
+          bind:this={editor}
+          value={editorText}
+          on:textInput={(e) => debounceInput(e.detail)}
+          on:restoreText={(e) => (editorText = e.detail)}
+          {isEditMode}
+        />
         <Playground
           {puzzledWords}
           {isEditMode}
           {selectedColor}
           {doc}
+          {wordsDictReady}
           on:wordsPairClick={(e) => onWordsPairClick(e.detail.e, e.detail.word)}
         />
       </div>

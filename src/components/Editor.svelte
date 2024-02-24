@@ -1,17 +1,20 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import { selectTextInTextArea } from "../lib/utils";
     export let value: string;
     export let isEditMode: boolean;
 
     export function setSelection(start: number, end: number) {
-        selectTextInTextArea(editor, start, end);
+        selectTextInTextArea(textarea, start, end);
     }
 
-    let editor: HTMLTextAreaElement;
+    let textarea: HTMLTextAreaElement;
+
+    const dispatch = createEventDispatcher();
 
     window.onload = () => {
         // useful if browser restores state
-        value = editor.value;
+        dispatch("restoreText", textarea.value);
     };
 </script>
 
@@ -19,8 +22,9 @@
     <textarea
         class={isEditMode ? "splitted" : ""}
         spellcheck="false"
-        bind:value
-        bind:this={editor}
+        {value}
+        on:input={() => dispatch("textInput", textarea.value)}
+        bind:this={textarea}
         placeholder="Paste text here"
     ></textarea>
 </div>

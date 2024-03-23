@@ -76,9 +76,19 @@
                     >
                         <div data-type="left">
                             {#if word.left}
-                                <span style="vertical-align: middle;"
-                                    >{word.left.value}</span
-                                >
+                                {#each word.left.components as component}
+                                    {#if component.type === "TextComponent"}
+                                        <span style="vertical-align: middle;"
+                                            >{component.text}</span
+                                        >
+                                    {:else if component.type === "TooltipComponent"}
+                                        <Tooltip
+                                            text={component.tooltip}
+                                            {isEditMode}
+                                        />
+                                    {/if}
+                                {/each}
+
                                 {#if word.left.tooltip}
                                     <Tooltip
                                         text={word.left.tooltip}

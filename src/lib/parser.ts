@@ -14,8 +14,8 @@ export interface Line {
 
 export interface WordsPair {
     id: number;
-    left?: PositionedText;
-    right?: PositionedText;
+    left?: RichPositionedText;
+    right?: RichPositionedText;
     puzzled?: boolean;
 }
 
@@ -24,6 +24,24 @@ export interface PositionedText {
     start: number;
     end: number;
     tooltip?: string;
+}
+
+export interface RichPositionedText extends PositionedText {
+    components: RichTextComponent[]
+}
+
+export interface RichTextComponent {
+    type: string
+}
+
+export interface TextComponent extends RichTextComponent {
+    type: "TextComponent",
+    text: string
+}
+
+export interface TooltipComponent {
+    type: "TooltipComponent",
+    tooltip: string
 }
 
 export function parseText(text: string): Doc {
@@ -100,9 +118,75 @@ function makeId(left?: PositionedText, right?: PositionedText): number {
     return left?.start ?? right?.start ?? -1;
 }
 
-function toWords(text?: PositionedText): PositionedText[] {
+function toWords(text?: PositionedText): RichPositionedText[] {
     if (text == null) return [];
-    return applyTooltips(joinByPlus(splitByWords(text)));
+
+    let res = splitByWords(text)
+    res = joinByPlus(res)
+    res = applyTooltips(res)
+
+    let richRes = toRichPositionedText(res)
+    richRes = applyInlineTooltips(richRes)
+    // logRichWords(richRes)
+
+    return richRes
+}
+
+function logRichWords(words: RichPositionedText[]) {
+    console.log("logRichWords: begin")
+    words.forEach(w => {
+        console.log("logRichWords: ", w)
+    })
+    console.log("logRichWords: end")
+}
+
+function applyInlineTooltips(richWords: RichPositionedText[]): RichPositionedText[] {
+    return richWords.map(w => {
+        w.components = w.components.flatMap(c => {
+            if (c.type == "TextComponent") {
+                const cc = c as TextComponent
+                const parts = textWithInlineTooltipsToParts(cc.text)
+
+                return parts.map(p => {
+                    if (p[0] == '{' && p[p.length - 1] == '}') {
+                        return { type: "TooltipComponent", tooltip: p.substring(1, p.length - 1) }
+                    } else {
+                        return { type: "TextComponent", text: p }
+                    }
+                })
+            }
+            return [c]
+        })
+        return w
+    })
+}
+
+function textWithInlineTooltipsToParts(str: string) {
+    const regex = /[^{]+|{.*?}/gm;
+
+    let m;
+    let parts: string[] = []
+
+    while ((m = regex.exec(str)) !== null) {
+        if (m.index === regex.lastIndex) {
+            regex.lastIndex++;
+        }
+
+        m.forEach((match, groupIndex) => {
+            parts.push(match)
+        });
+    }
+
+    return parts
+}
+
+function toRichPositionedText(words: PositionedText[]): RichPositionedText[] {
+    return words.map(w => {
+        return {
+            ...w,
+            components: [{ type: "TextComponent", text: w.value }]
+        }
+    })
 }
 
 function applyTooltips(words: PositionedText[]): PositionedText[] {
